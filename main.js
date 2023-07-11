@@ -1,7 +1,7 @@
 "use strict";
 (() => {
-    //add on page load trigger modal if selectedCoins.length ==6 
-
+    // This is the max amount of coins that can be selected for reports page
+    const selectedCoinsTopLimit = 6;
     // Navbar elements
     const mainPageLink = document.getElementById("mainPageLink");
     const coinsPageLink = document.getElementById("coinsPageLink");
@@ -25,6 +25,13 @@
         }
     });
 
+    // This loads the navbar reports icons 
+    adjustReportsLink();
+
+    // This triggers modal if user tries to surpass the max amount of coins allowed by refreshing the page
+    if(JSON.parse(sessionStorage.getItem("selectedCoins")).length === selectedCoinsTopLimit){
+        displayCoins(JSON.parse(sessionStorage.getItem("coins")));
+        checkSelectedCoinsAmount()};
 
 
     // ------------------------------------------------------- FUNCTIONS RELATED TO COINS PAGE -------------------------------------------------------
@@ -157,7 +164,9 @@
                             </div>
 
                             <div class="col-md-4">
-                                <img src="${coin.image}" class="img-fluid rounded-start" alt="image broken...">
+                                <label for="switch${coin.symbol}">
+                                    <img src="${coin.image}" class="img-fluid rounded-start" alt="image broken...">
+                                </label>
                             </div>
 
                             <div class="col-md-8">
@@ -193,7 +202,9 @@
                             </div>
 
                             <div class="col-md-4">
-                                <img src="${coin.image}" class="img-fluid rounded-start" alt="...">
+                                <label for="switch${coin.symbol}">
+                                    <img src="${coin.image}" class="img-fluid rounded-start" alt="...">
+                                </label>
                             </div>
 
                             <div class="col-md-8">
@@ -219,7 +230,7 @@
             }
         }
         // if coinsArray is empty show a nice image
-        if (coinsArray.length == 0) { html += `<img src="https://img.memegenerator.net/instances/48843826.jpg">` };
+        if (coinsArray.length == 0) { html += `<img src="assets/noCoinsFound.jpg">` };
 
         html += `</div>`;
         mainContentContainer.innerHTML = html;
@@ -228,7 +239,7 @@
         addEventListenersToButtons();
     }
 
-    // Function filters  new coinsArray according to `searchField` input and calls for a display
+    // Function filters new coinsArray according to `searchField` input and calls for a display
     async function filterAndDisplayCoins(str) {
 
         // Fetch data from API if data hasn't been fetched yet 
@@ -270,12 +281,12 @@
         // adjust `Reports` in navbar
     }
 
-    // Function checks if selected coins equal to 6 coins and displays modal accordingly
+    // Function checks if amount of selected coins is surpassed and displays modal accordingly
     function checkSelectedCoinsAmount() {
 
         let selectedCoins = JSON.parse(sessionStorage.getItem("selectedCoins"));
-        // if 6 coins are selected: set params to be shown in modal, add event listeners to params container elements and trigger modal
-        if (selectedCoins.length === 6) {
+        // if max allowed coin limit is surpassed: set params to be shown in modal, add event listeners to params container elements and trigger modal
+        if (selectedCoins.length === selectedCoinsTopLimit) {
             const selectedCoins = JSON.parse(sessionStorage.getItem("selectedCoins"));
             // set the names to be displayed for selected coins in modal 
             document.getElementById("firstCoinPlaceHolder").innerHTML = selectedCoins[0];
@@ -332,12 +343,14 @@
         let selectedCoins = sessionStorage.getItem("selectedCoins");
 
         let html = `Reports`;
+
         if(selectedCoins){
             selectedCoins = JSON.parse(selectedCoins);
             coins = JSON.parse(coins);
 
             for(const coin of selectedCoins){
-                html += `<img src="${coins[coins.indexOf(coins.find(element=>element.symbol == coin))].image}" style="width: 20px;padding-left: 5px;">`
+                html += `<img src="${coins[coins.indexOf(coins.find(element=>element.symbol == coin))].image}" style="width: 20px;padding-left: 5px;">`;
+               
             }
         }
         element.innerHTML = html;
@@ -360,7 +373,23 @@
     // Function loads about us page
     function loadAboutUsPage() {
         mainContentContainer.innerHTML = `
-        <h2>Lorem ipsum dolor sit amet consectetur<br>adipisicing elit. Dicta, eveniet.</h2>`
+        <div class="fs-5 col-sm-12 col-md-8 col-lg-6">
+  
+        <img class="col-sm-12 col-md-12 col-lg-6 img-thumbnail rounded float-start col-4 me-4 mb-b" src="assets/me.jpg" >
+        <h2>Hi there!</h2>
+        
+        <p>I'm Alexander, a 23 year old junior web developer,
+        An information systems analyst, And an athlete.</p>
+        <p>A short summary of the project:</p>
+
+        <p>I've called this project <i>\'Crypto World\'</i>. It's a client-side only web page that I've built as a project
+        that summarizes the HTML-CSS-JS part of my studies at <i>\'John Bryce Academy\'</i>.</p>
+
+        <p><i>\'Crypto World\'</i> calls an API that returns current data of the 100 most popular crypto coins and saves
+        them to session storage. From the saved data(which is its one source of truth) it later displays said coins
+        and allows the user to select and filter coins. All of which is possible via dynamic HTML and my own JS.</p>
+        
+        <p>Enjoy my website and make sure to check out the \`Reports\` page before you leave!</p></dov>`
     }
 
 
@@ -368,6 +397,6 @@
 
     // Function loads Main page
     function loadMainPage() {
-        mainContentContainer.innerHTML = `<h2>Hi!<br>And welcome to my crypto website,<br>please choose a page to go from the navbar or search a coin</h2>`
+        mainContentContainer.innerHTML = `<h2>Hi there!<br>And welcome to my crypto website,<br>please choose a page to go from the navbar or search a coin</h2>`
     }
 })();
