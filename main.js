@@ -29,9 +29,13 @@
     adjustReportsLink();
 
     // This triggers modal if user tries to surpass the max amount of coins allowed by refreshing the page
-    if(JSON.parse(sessionStorage.getItem("selectedCoins")).length === selectedCoinsTopLimit){
-        displayCoins(JSON.parse(sessionStorage.getItem("coins")));
-        checkSelectedCoinsAmount()};
+    const isThereDataOnLoad = JSON.parse(sessionStorage.getItem("selectedCoins"));
+    if (isThereDataOnLoad) {
+        if (isThereDataOnLoad.length === selectedCoinsTopLimit) {
+            displayCoins(JSON.parse(sessionStorage.getItem("coins")));
+            checkSelectedCoinsAmount()
+        }
+    };
 
 
     // ------------------------------------------------------- FUNCTIONS RELATED TO COINS PAGE -------------------------------------------------------
@@ -133,18 +137,6 @@
             </div>
             <div class="row row-cols-1 row-cols-md-3 g-4">`;
 
-        // X BUTTON HTML ON TOP OF MODAL: (IF NEEDS TO BE INSERTED BACK: INSERT AS CHILD TO CLASS modal-header (line 112))
-        // <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        // END OF X BUTTON HTML ON TOP OF MODAL
-
-
-        // SAVE AND CLOSE BUTTONS: (IF NEEDS TO BE INSERTED BACK: INSERT BELOW(not child) CLASS modal-body (line 138))
-        // <div class="modal-footer">
-        //     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        //     <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="modalSaveButton">Save</button>
-        // </div>
-        // END OF SAVE AND CLOSE BUTTONS
-
         for (let coin of coinsArray) {
 
             let selectedCoins = sessionStorage.getItem("selectedCoins");
@@ -174,15 +166,22 @@
                                     <h5 class="card-title">${coin.name}</h5>
                                     <p class="card-text">${coin.symbol}</p>
                                     <p class="card-text"><small class="text-body-secondary">Last updated:<br>${sessionStorage.getItem("dateAndTime")}</small></p>
-                                        <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapse${coin.symbol}" role="button" aria-expanded="false" aria-controls="collapseExample">
+                                        <a class="btn btn-primary alex" data-bs-toggle="collapse" href="#collapse${coin.symbol}" role="button" aria-expanded="false" aria-controls="collapseExample" id="buttonTogglePrice${coin.id}">
                                             More Info
                                         </a>
                                     </p>
                                 <div class="collapse" id="collapse${coin.symbol}">
                                     <div class="card card-body">
-                                        ${coin.current_price} $<br>
-                                        ${((coin.current_price) * .91).toFixed(2)} &#8352;<br>
-                                        ${((coin.current_price) * 3.55).toFixed(2)} &#8362;<br>
+                                    
+                                        <div id="coinPricePlaceHolderUSD${coin.id}">
+                                            $<br>
+                                        </div>
+                                        <div id="coinPricePlaceHolderEUR${coin.id}">
+                                            &#8352;<br>
+                                        </div>
+                                        <div id="coinPricePlaceHolderILS${coin.id}">
+                                            &#8362;<br>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -191,7 +190,7 @@
                 </div>`
             }
             // else: (coin is not selected)
-            else { 
+            else {
                 html += `
                     <div class="card mb-3 border border-0" style="max-width: 540px;">
                         <div class="row g-0">
@@ -212,15 +211,21 @@
                                     <h5 class="card-title">${coin.name}</h5>
                                     <p class="card-text">${coin.symbol}</p>
                                     <p class="card-text"><small class="text-body-secondary">Last updated:<br>${sessionStorage.getItem("dateAndTime")}</small></p>
-                                        <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapse${coin.symbol}" role="button" aria-expanded="false" aria-controls="collapseExample">
+                                        <a class="btn btn-primary alex" data-bs-toggle="collapse" href="#collapse${coin.symbol}" role="button" aria-expanded="false" aria-controls="collapseExample" id="buttonTogglePrice${coin.id}">
                                             More Info
                                         </a>
                                     </p>
                                     <div class="collapse" id="collapse${coin.symbol}">
                                         <div class="card card-body">
-                                            ${coin.current_price} $<br>
-                                            ${((coin.current_price) * .91).toFixed(2)} &#8352;<br>
-                                            ${((coin.current_price) * 3.55).toFixed(2)} &#8362;<br>
+                                            <div id="coinPricePlaceHolderUSD${coin.id}">
+                                                 $<br>
+                                            </div>
+                                            <div id="coinPricePlaceHolderEUR${coin.id}">
+                                                 &#8352;<br>
+                                            </div>
+                                            <div id="coinPricePlaceHolderILS${coin.id}">
+                                                 &#8362;<br>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -237,6 +242,7 @@
 
         // need to add event listeners to all buttons on every load:
         addEventListenersToButtons();
+        addEventListenersToPriceButtons();
     }
 
     // Function filters new coinsArray according to `searchField` input and calls for a display
@@ -275,7 +281,7 @@
         else {
             coinsSavedInStorage.push(id);
         }
-  
+
         // update storage
         sessionStorage.setItem("selectedCoins", JSON.stringify(coinsSavedInStorage));
         // adjust `Reports` in navbar
@@ -337,24 +343,78 @@
     }
 
     // Function adjusts Reports link in navbar according to selected coins
-    function adjustReportsLink(){
+    function adjustReportsLink() {
         let element = document.getElementById("reportsPageLink");
         let coins = sessionStorage.getItem("coins");
         let selectedCoins = sessionStorage.getItem("selectedCoins");
 
         let html = `Reports`;
 
-        if(selectedCoins){
+        if (selectedCoins) {
             selectedCoins = JSON.parse(selectedCoins);
             coins = JSON.parse(coins);
 
-            for(const coin of selectedCoins){
-                html += `<img src="${coins[coins.indexOf(coins.find(element=>element.symbol == coin))].image}" style="width: 20px;padding-left: 5px;">`;
-               
+            for (const coin of selectedCoins) {
+                html += `<img src="${coins[coins.indexOf(coins.find(element => element.symbol == coin))].image}" style="width: 20px;padding-left: 5px;">`;
+
             }
         }
         element.innerHTML = html;
     }
+
+
+
+
+
+
+
+    // Function returns json of a specific coin
+    async function getSpecificCoinJson(coinName) {
+        return (await fetch(`https://api.coingecko.com/api/v3/coins/${coinName}`)).json();
+    }
+    // Function displays coin price in USD, EUR and ILS from session storage or API data
+    async function displaySpecificCoinPrice(coinName) {
+        
+        const selectedCoin = JSON.parse(sessionStorage.getItem(`${coinName}`));
+        const usdValuePlaceholder = document.getElementById(`coinPricePlaceHolderUSD${coinName}`);
+        const eurValuePlaceholder = document.getElementById(`coinPricePlaceHolderEUR${coinName}`);
+        const ilsValuePlaceholder = document.getElementById(`coinPricePlaceHolderILS${coinName}`);
+
+        // if selected coin has already been fetched, display it 
+        if (selectedCoin) {
+            console.log(`we do have coin data in SS for ${coinName}`)
+
+            usdValuePlaceholder.innerHTML = `${selectedCoin.market_data.current_price.usd} $`;
+            eurValuePlaceholder.innerHTML = `${selectedCoin.market_data.current_price.eur} &#8352;`;
+            ilsValuePlaceholder.innerHTML = `${selectedCoin.market_data.current_price.ils} &#8362;`;
+        }
+        // else fetch data, save to session storage and display data and trigger spinner
+        else {
+            console.log(`we don't have coin data in SS for ${coinName}`);
+            const coin = await getSpecificCoinJson(coinName);
+            
+            usdValuePlaceholder.innerHTML = `${coin.market_data.current_price.usd} $`;
+            eurValuePlaceholder.innerHTML = `${coin.market_data.current_price.eur} &#8352;`;
+            ilsValuePlaceholder.innerHTML = `${coin.market_data.current_price.ils} &#8362;`;
+
+            // save data to session storage
+            sessionStorage.setItem(`${coinName}`, JSON.stringify(coin));
+        }
+    }
+    // Function adds event listeners to all "more info" price buttons
+    function addEventListenersToPriceButtons() {
+        const buttons = document.getElementsByClassName("alex");
+        for (const button of buttons) {
+            button.addEventListener("click", () => displaySpecificCoinPrice(button.id.substring(17)));
+        }
+
+    }
+
+
+
+
+
+
 
 
 
