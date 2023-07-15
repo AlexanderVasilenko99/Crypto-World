@@ -166,9 +166,11 @@
                                     <h5 class="card-title">${coin.name}</h5>
                                     <p class="card-text">${coin.symbol}</p>
                                     <p class="card-text"><small class="text-body-secondary">Last updated:<br>${sessionStorage.getItem("dateAndTime")}</small></p>
-                                        <a class="btn btn-primary alex" data-bs-toggle="collapse" href="#collapse${coin.symbol}" role="button" aria-expanded="false" aria-controls="collapseExample" id="buttonTogglePrice${coin.id}">
-                                            More Info
-                                        </a>
+                                        <button class="btn btn-primary alex" data-bs-toggle="collapse" href="#collapse${coin.symbol}" role="button" aria-expanded="false" aria-controls="collapseExample" id="buttonTogglePrice${coin.id}">
+                                            <span class="spinner-border spinner-border-sm visually-hidden" role="status" aria-hidden="true" id="spinner${coin.id}"></span>
+                                            <span class="visually-hidden" id=spinnerLabel${coin.id}>Loading...</span>
+                                            <span class="" id=spinnerMainLabel${coin.id}>More Info</span>
+                                        </button>
                                     </p>
                                 <div class="collapse" id="collapse${coin.symbol}">
                                     <div class="card card-body">
@@ -211,9 +213,11 @@
                                     <h5 class="card-title">${coin.name}</h5>
                                     <p class="card-text">${coin.symbol}</p>
                                     <p class="card-text"><small class="text-body-secondary">Last updated:<br>${sessionStorage.getItem("dateAndTime")}</small></p>
-                                        <a class="btn btn-primary alex" data-bs-toggle="collapse" href="#collapse${coin.symbol}" role="button" aria-expanded="false" aria-controls="collapseExample" id="buttonTogglePrice${coin.id}">
-                                            More Info
-                                        </a>
+                                        <button class="btn btn-primary alex" data-bs-toggle="collapse" href="#collapse${coin.symbol}" role="button" aria-expanded="false" aria-controls="collapseExample" id="buttonTogglePrice${coin.id}">
+                                            <span class="spinner-border spinner-border-sm visually-hidden" role="status" aria-hidden="true" id="spinner${coin.id}"></span>
+                                            <span class="visually-hidden" id=spinnerLabel${coin.id}>Loading...</span>
+                                            <span class="" id=spinnerMainLabel${coin.id}>More Info</span>
+                                        </button>
                                     </p>
                                     <div class="collapse" id="collapse${coin.symbol}">
                                         <div class="card card-body">
@@ -362,12 +366,6 @@
         element.innerHTML = html;
     }
 
-
-
-
-
-
-
     // Function returns json of a specific coin
     async function getSpecificCoinJson(coinName) {
         return (await fetch(`https://api.coingecko.com/api/v3/coins/${coinName}`)).json();
@@ -379,6 +377,9 @@
         const usdValuePlaceholder = document.getElementById(`coinPricePlaceHolderUSD${coinName}`);
         const eurValuePlaceholder = document.getElementById(`coinPricePlaceHolderEUR${coinName}`);
         const ilsValuePlaceholder = document.getElementById(`coinPricePlaceHolderILS${coinName}`);
+        const spinnerPlaceHolder = document.getElementById(`spinner${coinName}`);
+        const spinnerLabelPlaceHolder = document.getElementById(`spinnerLabel${coinName}`);
+        const spinnerMainLabel = document.getElementById(`spinnerMainLabel${coinName}`);
 
         // if selected coin has already been fetched, display it 
         if (selectedCoin) {
@@ -391,11 +392,21 @@
         // else fetch data, save to session storage and display data and trigger spinner
         else {
             console.log(`we don't have coin data in SS for ${coinName}`);
-            const coin = await getSpecificCoinJson(coinName);
+            // toggle spinner on
+            spinnerPlaceHolder.classList.toggle("visually-hidden");
+            spinnerLabelPlaceHolder.classList.toggle("visually-hidden");
+            spinnerMainLabel.classList.toggle("visually-hidden");
             
+            // await data and display when ready
+            const coin = await getSpecificCoinJson(coinName);
             usdValuePlaceholder.innerHTML = `${coin.market_data.current_price.usd} $`;
             eurValuePlaceholder.innerHTML = `${coin.market_data.current_price.eur} &#8352;`;
             ilsValuePlaceholder.innerHTML = `${coin.market_data.current_price.ils} &#8362;`;
+
+            // toggle spinner off
+            spinnerPlaceHolder.classList.toggle("visually-hidden");
+            spinnerLabelPlaceHolder.classList.toggle("visually-hidden");
+            spinnerMainLabel.classList.toggle("visually-hidden");
 
             // save data to session storage
             sessionStorage.setItem(`${coinName}`, JSON.stringify(coin));
@@ -409,14 +420,6 @@
         }
 
     }
-
-
-
-
-
-
-
-
 
 
     // ------------------------------------------------------- FUNCTIONS RELATED TO LIVE REPORT -------------------------------------------------------
