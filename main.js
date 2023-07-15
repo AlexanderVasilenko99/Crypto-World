@@ -16,14 +16,7 @@
     reportsPageLink.addEventListener("click", () => loadReportPage());
     aboutUsPageLink.addEventListener("click", () => loadAboutUsPage());
 
-    searchField.addEventListener("keypress", (event) => { filterAndDisplayCoins(searchField.value + event.key); });
-    searchField.addEventListener("keydown", (event) => {
-        if (event.key === "Backspace" || event.key === "Delete") {
-            setTimeout(() => {
-                filterAndDisplayCoins(searchField.value);
-            }, 0);
-        }
-    });
+    searchField.addEventListener("input", event => filterAndDisplayCoins(event.target.value));
 
     // This loads the navbar reports icons 
     adjustReportsLink();
