@@ -10,6 +10,9 @@
     const searchField = document.getElementById("searchField");
     const mainContentContainer = document.getElementById("main-content-display");
 
+    // This is array of selected coins on page load - used for triggering modal on page load if needed 
+    const isThereDataOnLoad = JSON.parse(sessionStorage.getItem("selectedCoins"));
+
     // Navbar links & navbar search field event listeners
     mainPageLink.addEventListener("click", () => loadMainPage());
     coinsPageLink.addEventListener("click", () => loadCoinsPage());
@@ -22,7 +25,6 @@
     adjustReportsLink();
 
     // This triggers modal if user tries to surpass the max amount of coins allowed by refreshing the page
-    const isThereDataOnLoad = JSON.parse(sessionStorage.getItem("selectedCoins"));
     if (isThereDataOnLoad) {
         if (isThereDataOnLoad.length === selectedCoinsTopLimit) {
             displayCoins(JSON.parse(sessionStorage.getItem("coins")));
@@ -159,7 +161,7 @@
                                     <h5 class="card-title">${coin.name}</h5>
                                     <p class="card-text">${coin.symbol}</p>
                                     <p class="card-text"><small class="text-body-secondary">Last updated:<br>${sessionStorage.getItem("dateAndTime")}</small></p>
-                                        <button class="btn btn-primary alex" data-bs-toggle="collapse" href="#collapse${coin.symbol}" role="button" aria-expanded="false" aria-controls="collapseExample" id="buttonTogglePrice${coin.id}">
+                                        <button class="btn btn-primary priceButton" data-bs-toggle="collapse" href="#collapse${coin.symbol}" role="button" aria-expanded="false" aria-controls="collapseExample" id="buttonTogglePrice${coin.id}">
                                             <span class="spinner-border spinner-border-sm visually-hidden" role="status" aria-hidden="true" id="spinner${coin.id}"></span>
                                             <span class="visually-hidden" id=spinnerLabel${coin.id}>Loading...</span>
                                             <span class="" id=spinnerMainLabel${coin.id}>More Info</span>
@@ -206,7 +208,7 @@
                                     <h5 class="card-title">${coin.name}</h5>
                                     <p class="card-text">${coin.symbol}</p>
                                     <p class="card-text"><small class="text-body-secondary">Last updated:<br>${sessionStorage.getItem("dateAndTime")}</small></p>
-                                        <button class="btn btn-primary alex" data-bs-toggle="collapse" href="#collapse${coin.symbol}" role="button" aria-expanded="false" aria-controls="collapseExample" id="buttonTogglePrice${coin.id}">
+                                        <button class="btn btn-primary priceButton" data-bs-toggle="collapse" href="#collapse${coin.symbol}" role="button" aria-expanded="false" aria-controls="collapseExample" id="buttonTogglePrice${coin.id}">
                                             <span class="spinner-border spinner-border-sm visually-hidden" role="status" aria-hidden="true" id="spinner${coin.id}"></span>
                                             <span class="visually-hidden" id=spinnerLabel${coin.id}>Loading...</span>
                                             <span class="" id=spinnerMainLabel${coin.id}>More Info</span>
@@ -365,7 +367,7 @@
     }
     // Function displays coin price in USD, EUR and ILS from session storage or API data
     async function displaySpecificCoinPrice(coinName) {
-        
+
         const selectedCoin = JSON.parse(sessionStorage.getItem(`${coinName}`));
         const usdValuePlaceholder = document.getElementById(`coinPricePlaceHolderUSD${coinName}`);
         const eurValuePlaceholder = document.getElementById(`coinPricePlaceHolderEUR${coinName}`);
@@ -376,7 +378,6 @@
 
         // if selected coin has already been fetched, display it 
         if (selectedCoin) {
-            console.log(`we do have coin data in SS for ${coinName}`)
 
             usdValuePlaceholder.innerHTML = `${selectedCoin.market_data.current_price.usd} $`;
             eurValuePlaceholder.innerHTML = `${selectedCoin.market_data.current_price.eur} &#8352;`;
@@ -384,12 +385,12 @@
         }
         // else fetch data, save to session storage and display data and trigger spinner
         else {
-            console.log(`we don't have coin data in SS for ${coinName}`);
+
             // toggle spinner on
             spinnerPlaceHolder.classList.toggle("visually-hidden");
             spinnerLabelPlaceHolder.classList.toggle("visually-hidden");
             spinnerMainLabel.classList.toggle("visually-hidden");
-            
+
             // await data and display when ready
             const coin = await getSpecificCoinJson(coinName);
             usdValuePlaceholder.innerHTML = `${coin.market_data.current_price.usd} $`;
@@ -407,7 +408,7 @@
     }
     // Function adds event listeners to all "more info" price buttons
     function addEventListenersToPriceButtons() {
-        const buttons = document.getElementsByClassName("alex");
+        const buttons = document.getElementsByClassName("priceButton");
         for (const button of buttons) {
             button.addEventListener("click", () => displaySpecificCoinPrice(button.id.substring(17)));
         }
