@@ -142,7 +142,7 @@
             // HTML Card featuring asked params
             if (selectedCoins.indexOf(`${coin.symbol}`) > -1) {
                 html += `
-                    <div class="card mb-3 border border-0" style="max-width: 540px;">
+                    <div class="card mb-3 border border-0 bg-transparent" style="max-width: 540px;">
                         <div class="row g-0">
 
                             <div class="form-check form-switch">
@@ -168,7 +168,7 @@
                                         </button>
                                     </p>
                                 <div class="collapse" id="collapse${coin.id}">
-                                    <div class="card card-body">
+                                    <div class="card card-body bg-transparent border-0">
                                     
                                         <div id="coinPricePlaceHolderUSD${coin.id}">
                                             $<br>
@@ -189,7 +189,7 @@
             // else: (coin is not selected)
             else {
                 html += `
-                    <div class="card mb-3 border border-0" style="max-width: 540px;">
+                    <div class="card mb-3 border border-0 bg-transparent" style="max-width: 540px;">
                         <div class="row g-0">
 
                             <div class="form-check form-switch">
@@ -215,7 +215,7 @@
                                         </button>
                                     </p>
                                     <div class="collapse" id="collapse${coin.id}">
-                                        <div class="card card-body">
+                                        <div class="card card-body bg-transparent border-0">
                                             <div id="coinPricePlaceHolderUSD${coin.id}">
                                                  $<br>
                                             </div>
