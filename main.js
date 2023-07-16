@@ -80,7 +80,7 @@
         }
     }
 
-    //  Function saves fetched coinsArray and fetching time to session storage
+    // Function saves fetched coinsArray and fetching time to session storage
     function saveCoinsAndTimeToSessionStorage(coinsArray) {
         sessionStorage.setItem("coins", JSON.stringify(coinsArray));
         sessionStorage.setItem("dateAndTime", JSON.stringify((new Date).toLocaleString()));
@@ -160,30 +160,29 @@
                                 <div class="card-body">
                                     <h5 class="card-title">${coin.name}</h5>
                                     <p class="card-text">${coin.symbol}</p>
-                                    <p class="card-text"><small class="text-body-secondary">Last updated:<br>${sessionStorage.getItem("dateAndTime")}</small></p>
+                                    <p class="card-text"><small class="text-body-secondary" id="coinFetchDateAndTime${coin.id}">Last updated:<br>${getMostRelevantFetchDateAndTime(coin.id)}</small></p>
                                         <button class="btn btn-primary priceButton" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="collapseExample" id="buttonTogglePrice${coin.id}">
                                             <span class="spinner-border spinner-border-sm visually-hidden" role="status" aria-hidden="true" id="spinner${coin.id}"></span>
                                             <span class="visually-hidden" id=spinnerLabel${coin.id}>Loading...</span>
                                             <span class="" id=spinnerMainLabel${coin.id}>More Info</span>
                                         </button>
                                     </p>
-                                <div class="collapse" id="collapse${coin.id}">
-                                    <div class="card card-body bg-transparent border-0">
-                                    
-                                        <div id="coinPricePlaceHolderUSD${coin.id}">
-                                            $<br>
-                                        </div>
-                                        <div id="coinPricePlaceHolderEUR${coin.id}">
-                                            &#8352;<br>
-                                        </div>
-                                        <div id="coinPricePlaceHolderILS${coin.id}">
-                                            &#8362;<br>
+                                    <div class="collapse" id="collapse${coin.id}">
+                                        <div class="card card-body bg-transparent border-0">
+                                            <div id="coinPricePlaceHolderUSD${coin.id}">
+                                                $<br>
+                                            </div>
+                                            <div id="coinPricePlaceHolderEUR${coin.id}">
+                                                &#8352;<br>
+                                            </div>
+                                            <div id="coinPricePlaceHolderILS${coin.id}">
+                                                &#8362;<br>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
                 </div>`
             }
             // else: (coin is not selected)
@@ -199,7 +198,7 @@
 
                             <div class="col-md-4">
                                 <label for="switch${coin.symbol}">
-                                    <img src="${coin.image}" class="img-fluid rounded-start" alt="...">
+                                    <img src="${coin.image}" class="img-fluid rounded-start" alt="image broken...">
                                 </label>
                             </div>
 
@@ -207,8 +206,8 @@
                                 <div class="card-body">
                                     <h5 class="card-title">${coin.name}</h5>
                                     <p class="card-text">${coin.symbol}</p>
-                                    <p class="card-text"><small class="text-body-secondary">Last updated:<br>${sessionStorage.getItem("dateAndTime")}</small></p>
-                                        <button class="btn btn-primary priceButton" data-bs-toggle="collapse"  role="button" aria-expanded="false" aria-controls="collapseExample" id="buttonTogglePrice${coin.id}">
+                                    <p class="card-text"><small class="text-body-secondary" id="coinFetchDateAndTime${coin.id}">Last updated:<br>${getMostRelevantFetchDateAndTime(coin.id)}</small></p>
+                                        <button class="btn btn-primary priceButton" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="collapseExample" id="buttonTogglePrice${coin.id}">
                                             <span class="spinner-border spinner-border-sm visually-hidden" role="status" aria-hidden="true" id="spinner${coin.id}"></span>
                                             <span class="visually-hidden" id=spinnerLabel${coin.id}>Loading...</span>
                                             <span class="" id=spinnerMainLabel${coin.id}>More Info</span>
@@ -217,13 +216,13 @@
                                     <div class="collapse" id="collapse${coin.id}">
                                         <div class="card card-body bg-transparent border-0">
                                             <div id="coinPricePlaceHolderUSD${coin.id}">
-                                                 $<br>
+                                                $<br>
                                             </div>
                                             <div id="coinPricePlaceHolderEUR${coin.id}">
-                                                 &#8352;<br>
+                                                &#8352;<br>
                                             </div>
                                             <div id="coinPricePlaceHolderILS${coin.id}">
-                                                 &#8362;<br>
+                                                &#8362;<br>
                                             </div>
                                         </div>
                                     </div>
@@ -365,6 +364,7 @@
     async function getSpecificCoinJson(coinName) {
         return (await fetch(`https://api.coingecko.com/api/v3/coins/${coinName}`)).json();
     }
+
     // Function displays coin price in USD, EUR and ILS from session storage or API data
     async function displaySpecificCoinPrice(coinName) {
 
@@ -372,28 +372,32 @@
         const usdValuePlaceholder = document.getElementById(`coinPricePlaceHolderUSD${coinName}`);
         const eurValuePlaceholder = document.getElementById(`coinPricePlaceHolderEUR${coinName}`);
         const ilsValuePlaceholder = document.getElementById(`coinPricePlaceHolderILS${coinName}`);
+
         const spinnerPlaceHolder = document.getElementById(`spinner${coinName}`);
         const spinnerLabelPlaceHolder = document.getElementById(`spinnerLabel${coinName}`);
         const spinnerMainLabel = document.getElementById(`spinnerMainLabel${coinName}`);
+        const coinFetchDateAndTime = document.getElementById(`coinFetchDateAndTime${coinName}`);
+    
         const buttonTogglePrice = document.getElementById(`buttonTogglePrice${coinName}`);
-        buttonTogglePrice.setAttribute("href",`#collapse${coinName}`);
-            
+        buttonTogglePrice.setAttribute("href", `#collapse${coinName}`);
+        
 
-        // if selected coin has already been fetched, display it 
-        if (selectedCoin) {
+
+        // if selected coin has already been fetched and fetch time is relevant, display it 
+        if (selectedCoin && isCoinFetchTimeRelevant(coinName)) {
             usdValuePlaceholder.innerHTML = `${selectedCoin.market_data.current_price.usd} $`;
             eurValuePlaceholder.innerHTML = `${selectedCoin.market_data.current_price.eur} &#8352;`;
             ilsValuePlaceholder.innerHTML = `${selectedCoin.market_data.current_price.ils} &#8362;`;
             // toggle collapse
             buttonTogglePrice.click();
         }
-        // else fetch data, save to session storage and display data and trigger spinner
+        // else trigger spinner --> fetch data --> save fetch time and coin data to session storage --> display data
         else {
 
             // toggle spinner on
             spinnerPlaceHolder.classList.toggle("visually-hidden");
             spinnerLabelPlaceHolder.classList.toggle("visually-hidden");
-            spinnerMainLabel.classList.toggle("visually-hidden"); 
+            spinnerMainLabel.classList.toggle("visually-hidden");
 
             // await data and display when ready
             const coin = await getSpecificCoinJson(coinName);
@@ -407,10 +411,14 @@
             spinnerMainLabel.classList.toggle("visually-hidden");
             buttonTogglePrice.click();
 
-            // save data to session storage
+            // save coin data and fetch time to session storage
             sessionStorage.setItem(`${coinName}`, JSON.stringify(coin));
+            const date = (new Date).toLocaleString();
+            sessionStorage.setItem(`fetchTime${coinName}`, JSON.stringify(date));
+            coinFetchDateAndTime.innerHTML = `Last updated:<br>${date}`;
         }
     }
+
     // Function adds event listeners to all "more info" price buttons
     function addEventListenersToPriceButtons() {
         const buttons = document.getElementsByClassName("priceButton");
@@ -419,8 +427,22 @@
         }
 
     }
+    
+    // Function returns true if coin data was fetched less than 2 minutes ago; else returns false 
+    function isCoinFetchTimeRelevant(coinName) {
+        const coinFetchTime = new Date(JSON.parse(sessionStorage.getItem(`fetchTime${coinName}`)));
+        const currentDateTime = new Date;
+        if (coinFetchTime.getMinutes() === 59 && currentDateTime.getMinutes() === 0) { return true };
+        return Math.abs(coinFetchTime.getMinutes() - currentDateTime.getMinutes()) < 2 ? true : false;
+    }
 
+    // Function returns most relevant fetch time from session storage(the time all coins were fetched or the time a specific coin was fetched from "More info button")
+    function getMostRelevantFetchDateAndTime(coinName) {
+        if (sessionStorage.getItem(`fetchTime${coinName}`)) { return JSON.parse(sessionStorage.getItem(`fetchTime${coinName}`)) };
+        return JSON.parse(sessionStorage.getItem("dateAndTime"));
+    }
 
+    
     // ------------------------------------------------------- FUNCTIONS RELATED TO LIVE REPORT -------------------------------------------------------
 
     // Function loads report page
