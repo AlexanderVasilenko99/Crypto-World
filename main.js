@@ -161,13 +161,13 @@
                                     <h5 class="card-title">${coin.name}</h5>
                                     <p class="card-text">${coin.symbol}</p>
                                     <p class="card-text"><small class="text-body-secondary">Last updated:<br>${sessionStorage.getItem("dateAndTime")}</small></p>
-                                        <button class="btn btn-primary priceButton" data-bs-toggle="collapse" href="#collapse${coin.symbol}" role="button" aria-expanded="false" aria-controls="collapseExample" id="buttonTogglePrice${coin.id}">
+                                        <button class="btn btn-primary priceButton" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="collapseExample" id="buttonTogglePrice${coin.id}">
                                             <span class="spinner-border spinner-border-sm visually-hidden" role="status" aria-hidden="true" id="spinner${coin.id}"></span>
                                             <span class="visually-hidden" id=spinnerLabel${coin.id}>Loading...</span>
                                             <span class="" id=spinnerMainLabel${coin.id}>More Info</span>
                                         </button>
                                     </p>
-                                <div class="collapse" id="collapse${coin.symbol}">
+                                <div class="collapse" id="collapse${coin.id}">
                                     <div class="card card-body">
                                     
                                         <div id="coinPricePlaceHolderUSD${coin.id}">
@@ -208,13 +208,13 @@
                                     <h5 class="card-title">${coin.name}</h5>
                                     <p class="card-text">${coin.symbol}</p>
                                     <p class="card-text"><small class="text-body-secondary">Last updated:<br>${sessionStorage.getItem("dateAndTime")}</small></p>
-                                        <button class="btn btn-primary priceButton" data-bs-toggle="collapse" href="#collapse${coin.symbol}" role="button" aria-expanded="false" aria-controls="collapseExample" id="buttonTogglePrice${coin.id}">
+                                        <button class="btn btn-primary priceButton" data-bs-toggle="collapse"  role="button" aria-expanded="false" aria-controls="collapseExample" id="buttonTogglePrice${coin.id}">
                                             <span class="spinner-border spinner-border-sm visually-hidden" role="status" aria-hidden="true" id="spinner${coin.id}"></span>
                                             <span class="visually-hidden" id=spinnerLabel${coin.id}>Loading...</span>
                                             <span class="" id=spinnerMainLabel${coin.id}>More Info</span>
                                         </button>
                                     </p>
-                                    <div class="collapse" id="collapse${coin.symbol}">
+                                    <div class="collapse" id="collapse${coin.id}">
                                         <div class="card card-body">
                                             <div id="coinPricePlaceHolderUSD${coin.id}">
                                                  $<br>
@@ -375,13 +375,17 @@
         const spinnerPlaceHolder = document.getElementById(`spinner${coinName}`);
         const spinnerLabelPlaceHolder = document.getElementById(`spinnerLabel${coinName}`);
         const spinnerMainLabel = document.getElementById(`spinnerMainLabel${coinName}`);
+        const buttonTogglePrice = document.getElementById(`buttonTogglePrice${coinName}`);
+        buttonTogglePrice.setAttribute("href",`#collapse${coinName}`);
+            
 
         // if selected coin has already been fetched, display it 
         if (selectedCoin) {
-
             usdValuePlaceholder.innerHTML = `${selectedCoin.market_data.current_price.usd} $`;
             eurValuePlaceholder.innerHTML = `${selectedCoin.market_data.current_price.eur} &#8352;`;
             ilsValuePlaceholder.innerHTML = `${selectedCoin.market_data.current_price.ils} &#8362;`;
+            // toggle collapse
+            buttonTogglePrice.click();
         }
         // else fetch data, save to session storage and display data and trigger spinner
         else {
@@ -389,7 +393,7 @@
             // toggle spinner on
             spinnerPlaceHolder.classList.toggle("visually-hidden");
             spinnerLabelPlaceHolder.classList.toggle("visually-hidden");
-            spinnerMainLabel.classList.toggle("visually-hidden");
+            spinnerMainLabel.classList.toggle("visually-hidden"); 
 
             // await data and display when ready
             const coin = await getSpecificCoinJson(coinName);
@@ -397,10 +401,11 @@
             eurValuePlaceholder.innerHTML = `${coin.market_data.current_price.eur} &#8352;`;
             ilsValuePlaceholder.innerHTML = `${coin.market_data.current_price.ils} &#8362;`;
 
-            // toggle spinner off
+            // toggle spinner off and open collapse
             spinnerPlaceHolder.classList.toggle("visually-hidden");
             spinnerLabelPlaceHolder.classList.toggle("visually-hidden");
             spinnerMainLabel.classList.toggle("visually-hidden");
+            buttonTogglePrice.click();
 
             // save data to session storage
             sessionStorage.setItem(`${coinName}`, JSON.stringify(coin));
