@@ -377,10 +377,10 @@
         const spinnerLabelPlaceHolder = document.getElementById(`spinnerLabel${coinName}`);
         const spinnerMainLabel = document.getElementById(`spinnerMainLabel${coinName}`);
         const coinFetchDateAndTime = document.getElementById(`coinFetchDateAndTime${coinName}`);
-    
+
         const buttonTogglePrice = document.getElementById(`buttonTogglePrice${coinName}`);
         buttonTogglePrice.setAttribute("href", `#collapse${coinName}`);
-        
+
 
 
         // if selected coin has already been fetched and fetch time is relevant, display it 
@@ -427,7 +427,7 @@
         }
 
     }
-    
+
     // Function returns true if coin data was fetched less than 2 minutes ago; else returns false 
     function isCoinFetchTimeRelevant(coinName) {
         const coinFetchTime = new Date(JSON.parse(sessionStorage.getItem(`fetchTime${coinName}`)));
@@ -442,15 +442,147 @@
         return JSON.parse(sessionStorage.getItem("dateAndTime"));
     }
 
-    
+
     // ------------------------------------------------------- FUNCTIONS RELATED TO LIVE REPORT -------------------------------------------------------
 
     // Function loads report page
     function loadReportPage() {
         mainContentContainer.innerHTML = `
-        <h2>ReportsPage is under construction.</h2>`
+        <h2>Reports Page</h2>
+        <div id="chartContainer" style="height: 370px; width: 100%;"></div>`;
+
+        const arrayOfSelectedCoins = JSON.parse(sessionStorage.getItem("selectedCoins"));
+        const upper = arrayOfSelectedCoins.map(element => {
+            return element.toUpperCase();
+        });
+
+        startCanvas(upper);
+
+        function startCanvas(arrayOfSelectedCoins) {
+
+            const chartUpdateInterval = 2000; // how often the chart updates in milliseconds
+            let coin1DataPoints = [];
+            let coin2DataPoints = [];
+            let coin3DataPoints = [];
+            let coin4DataPoints = [];
+            let coin5DataPoints = [];
+
+            const time = new Date;
+            time.setMilliseconds(0);
+
+            const options = { // canvas settings
+                axisX: {
+                    title: "chart updates every 2 secs"
+                },
+                axisY: {
+                    suffix: "$"
+                },
+                legend: {
+                    cursor: "pointer",
+                    verticalAlign: "top",
+                    fontSize: 22,
+                    fontColor: "dimGrey",
+                },
+                data: [{
+                    type: "line",
+                    xValueType: "dateTime",
+                    yValueFormatString: "###. $",
+                    xValueFormatString: "hh:mm:ss TT",
+                    showInLegend: true,//(top of chart)
+                    name: "Coin 1",
+                    dataPoints: coin1DataPoints
+                }, {
+                    type: "line",
+                    xValueType: "dateTime",
+                    yValueFormatString: "###. $",
+                    xValueFormatString: "hh:mm:ss TT",
+                    showInLegend: true,//(top of chart)
+                    name: "Coin 2",
+                    dataPoints: coin2DataPoints
+                }, {
+                    type: "line",
+                    xValueType: "dateTime",
+                    yValueFormatString: "###. $",
+                    xValueFormatString: "hh:mm:ss TT",
+                    showInLegend: true,//(top of chart)
+                    name: "Coin 3",
+                    dataPoints: coin3DataPoints
+                }, {
+                    type: "line",
+                    xValueType: "dateTime",
+                    yValueFormatString: "###. $",
+                    xValueFormatString: "hh:mm:ss TT",
+                    showInLegend: true,//(top of chart)
+                    name: "Coin 4",
+                    dataPoints: coin4DataPoints
+                }, {
+                    type: "line",
+                    xValueType: "dateTime",
+                    yValueFormatString: "###. $",
+                    xValueFormatString: "hh:mm:ss TT",
+                    showInLegend: true,//(top of chart)
+                    name: "Coin 5",
+                    dataPoints: coin5DataPoints
+                },
+                ]
+            };
+
+            $("#chartContainer").CanvasJSChart(options);
+            async function updateChart() {
+
+                time.setTime(time.getTime() + chartUpdateInterval);
+
+                for (let i = 0; i < arrayOfSelectedCoins.length; i++) {
+                    // get the current price:
+                    const yValue = (await getDataForReportsPage(arrayOfSelectedCoins))[arrayOfSelectedCoins[i]].USD;
+
+                    // push the price to the right array
+                    if (i === 0) { coin1DataPoints.push({ x: time.getTime(), y: yValue }); }
+                    else if (i === 1) { coin2DataPoints.push({ x: time.getTime(), y: yValue }); }
+                    else if (i === 2) { coin3DataPoints.push({ x: time.getTime(), y: yValue }); }
+                    else if (i === 3) { coin4DataPoints.push({ x: time.getTime(), y: yValue }); }
+                    else { coin5DataPoints.push({ x: time.getTime(), y: yValue }); }
+
+                    // update legend text with most recent
+                    options.data[i].legendText = `${arrayOfSelectedCoins[i]}: ${yValue} $`;
+                }
+                $("#chartContainer").CanvasJSChart().render();
+                console.log($("#chartContainer"))
+
+            }
+
+            updateChart(1);
+            setInterval(() => { updateChart() }, chartUpdateInterval);
+
+
+
+        }
     }
 
+    // Function returns data from API according to given array of coins  
+    async function getDataForReportsPage(arrayOfSelectedCoins) {
+        let response;
+        if (arrayOfSelectedCoins.length === 1) {
+            response = await fetch(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${arrayOfSelectedCoins[0]}&tsyms=USD`);
+        }
+        else if (arrayOfSelectedCoins.length === 2) {
+            response = await fetch(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${arrayOfSelectedCoins[0]},${arrayOfSelectedCoins[1]}&tsyms=USD`);
+        }
+        else if (arrayOfSelectedCoins.length === 3) {
+            response = await fetch(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${arrayOfSelectedCoins[0]},${arrayOfSelectedCoins[1]},${arrayOfSelectedCoins[2]}&tsyms=USD`);
+        }
+        else if (arrayOfSelectedCoins.length === 4) {
+            response = await fetch(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${arrayOfSelectedCoins[0]},${arrayOfSelectedCoins[1]},${arrayOfSelectedCoins[2]},${arrayOfSelectedCoins[3]}&tsyms=USD`);
+        }
+        else if (arrayOfSelectedCoins.length === 5) {
+            response = await fetch(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${arrayOfSelectedCoins[0]},${arrayOfSelectedCoins[1]},${arrayOfSelectedCoins[2]},${arrayOfSelectedCoins[3]},${arrayOfSelectedCoins[4]}&tsyms=USD`);
+        }
+        else {//no coins were selected
+            alert("select a coin fat ass")
+        }
+        const info = await response.json();
+        return info;
+    }
 
     // -------------------------------------------------------- FUNCTIONS RELATED TO ABOUT US ---------------------------------------------------------
 
