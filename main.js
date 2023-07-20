@@ -451,111 +451,118 @@
         <h2>Reports Page</h2>
         <div id="chartContainer" style="height: 370px; width: 100%;"></div>`;
 
-        const arrayOfSelectedCoins = JSON.parse(sessionStorage.getItem("selectedCoins"));
-        const upper = arrayOfSelectedCoins.map(element => {
-            return element.toUpperCase();
-        });
+        let arrayOfSelectedCoins = sessionStorage.getItem("selectedCoins");
+        if (arrayOfSelectedCoins) {
+            arrayOfSelectedCoins = JSON.parse(arrayOfSelectedCoins);
 
-        startCanvas(upper);
+            const upper = arrayOfSelectedCoins.map(element => {
+                return element.toUpperCase();
+            });
 
-        function startCanvas(arrayOfSelectedCoins) {
+            startCanvas(upper);
 
-            const chartUpdateInterval = 2000; // how often the chart updates in milliseconds
-            let coin1DataPoints = [];
-            let coin2DataPoints = [];
-            let coin3DataPoints = [];
-            let coin4DataPoints = [];
-            let coin5DataPoints = [];
+            function startCanvas(arrayOfSelectedCoins) {
 
-            const time = new Date;
-            time.setMilliseconds(0);
+                const chartUpdateInterval = 2000; // how often the chart updates in milliseconds
+                let coin1DataPoints = [];
+                let coin2DataPoints = [];
+                let coin3DataPoints = [];
+                let coin4DataPoints = [];
+                let coin5DataPoints = [];
 
-            const options = { // canvas settings
-                axisX: {
-                    title: "chart updates every 2 secs"
-                },
-                axisY: {
-                    suffix: "$"
-                },
-                legend: {
-                    cursor: "pointer",
-                    verticalAlign: "top",
-                    fontSize: 22,
-                    fontColor: "dimGrey",
-                },
-                data: [{
-                    type: "line",
-                    xValueType: "dateTime",
-                    yValueFormatString: "###. $",
-                    xValueFormatString: "hh:mm:ss TT",
-                    showInLegend: true,//(top of chart)
-                    name: "Coin 1",
-                    dataPoints: coin1DataPoints
-                }, {
-                    type: "line",
-                    xValueType: "dateTime",
-                    yValueFormatString: "###. $",
-                    xValueFormatString: "hh:mm:ss TT",
-                    showInLegend: true,//(top of chart)
-                    name: "Coin 2",
-                    dataPoints: coin2DataPoints
-                }, {
-                    type: "line",
-                    xValueType: "dateTime",
-                    yValueFormatString: "###. $",
-                    xValueFormatString: "hh:mm:ss TT",
-                    showInLegend: true,//(top of chart)
-                    name: "Coin 3",
-                    dataPoints: coin3DataPoints
-                }, {
-                    type: "line",
-                    xValueType: "dateTime",
-                    yValueFormatString: "###. $",
-                    xValueFormatString: "hh:mm:ss TT",
-                    showInLegend: true,//(top of chart)
-                    name: "Coin 4",
-                    dataPoints: coin4DataPoints
-                }, {
-                    type: "line",
-                    xValueType: "dateTime",
-                    yValueFormatString: "###. $",
-                    xValueFormatString: "hh:mm:ss TT",
-                    showInLegend: true,//(top of chart)
-                    name: "Coin 5",
-                    dataPoints: coin5DataPoints
-                },
-                ]
-            };
+                const time = new Date;
+                time.setMilliseconds(0);
 
-            $("#chartContainer").CanvasJSChart(options);
-            async function updateChart() {
+                const options = { // canvas settings
+                    axisX: {
+                        title: "chart updates every 2 secs"
+                    },
+                    axisY: {
+                        suffix: "$"
+                    },
+                    legend: {
+                        cursor: "pointer",
+                        verticalAlign: "top",
+                        fontSize: 22,
+                        fontColor: "dimGrey",
+                    },
+                    data: [{
+                        type: "line",
+                        xValueType: "dateTime",
+                        yValueFormatString: "###. $",
+                        xValueFormatString: "hh:mm:ss TT",
+                        showInLegend: true,//(top of chart)
+                        name: "Coin 1",
+                        dataPoints: coin1DataPoints
+                    }, {
+                        type: "line",
+                        xValueType: "dateTime",
+                        yValueFormatString: "###. $",
+                        xValueFormatString: "hh:mm:ss TT",
+                        showInLegend: true,//(top of chart)
+                        name: "Coin 2",
+                        dataPoints: coin2DataPoints
+                    }, {
+                        type: "line",
+                        xValueType: "dateTime",
+                        yValueFormatString: "###. $",
+                        xValueFormatString: "hh:mm:ss TT",
+                        showInLegend: true,//(top of chart)
+                        name: "Coin 3",
+                        dataPoints: coin3DataPoints
+                    }, {
+                        type: "line",
+                        xValueType: "dateTime",
+                        yValueFormatString: "###. $",
+                        xValueFormatString: "hh:mm:ss TT",
+                        showInLegend: true,//(top of chart)
+                        name: "Coin 4",
+                        dataPoints: coin4DataPoints
+                    }, {
+                        type: "line",
+                        xValueType: "dateTime",
+                        yValueFormatString: "###. $",
+                        xValueFormatString: "hh:mm:ss TT",
+                        showInLegend: true,//(top of chart)
+                        name: "Coin 5",
+                        dataPoints: coin5DataPoints
+                    },
+                    ]
+                };
 
-                time.setTime(time.getTime() + chartUpdateInterval);
+                $("#chartContainer").CanvasJSChart(options);
+                async function updateChart() {
 
-                for (let i = 0; i < arrayOfSelectedCoins.length; i++) {
-                    // get the current price:
-                    const yValue = (await getDataForReportsPage(arrayOfSelectedCoins))[arrayOfSelectedCoins[i]].USD;
+                    time.setTime(time.getTime() + chartUpdateInterval);
 
-                    // push the price to the right array
-                    if (i === 0) { coin1DataPoints.push({ x: time.getTime(), y: yValue }); }
-                    else if (i === 1) { coin2DataPoints.push({ x: time.getTime(), y: yValue }); }
-                    else if (i === 2) { coin3DataPoints.push({ x: time.getTime(), y: yValue }); }
-                    else if (i === 3) { coin4DataPoints.push({ x: time.getTime(), y: yValue }); }
-                    else { coin5DataPoints.push({ x: time.getTime(), y: yValue }); }
+                    for (let i = 0; i < arrayOfSelectedCoins.length; i++) {
+                        // get the current price:
+                        const yValue = (await getDataForReportsPage(arrayOfSelectedCoins))[arrayOfSelectedCoins[i]].USD;
 
-                    // update legend text with most recent
-                    options.data[i].legendText = `${arrayOfSelectedCoins[i]}: ${yValue} $`;
+                        // push the price to the right array
+                        if (i === 0) { coin1DataPoints.push({ x: time.getTime(), y: yValue }); }
+                        else if (i === 1) { coin2DataPoints.push({ x: time.getTime(), y: yValue }); }
+                        else if (i === 2) { coin3DataPoints.push({ x: time.getTime(), y: yValue }); }
+                        else if (i === 3) { coin4DataPoints.push({ x: time.getTime(), y: yValue }); }
+                        else { coin5DataPoints.push({ x: time.getTime(), y: yValue }); }
+
+                        // update legend text with most recent
+                        options.data[i].legendText = `${arrayOfSelectedCoins[i]}: ${yValue} $`;
+                    }
+
+
+                    let tab = document.getElementById("chartContainer");
+                    console.log(tab);
+                    if (tab) {
+                        $("#chartContainer").CanvasJSChart().render();
+
+                    }
+
                 }
-                $("#chartContainer").CanvasJSChart().render();
-                console.log($("#chartContainer"))
 
+                updateChart(1);
+                setInterval(() => { updateChart() }, chartUpdateInterval);
             }
-
-            updateChart(1);
-            setInterval(() => { updateChart() }, chartUpdateInterval);
-
-
-
         }
     }
 
