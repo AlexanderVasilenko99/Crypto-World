@@ -64,8 +64,8 @@
         displayCoins(JSON.parse(sessionStorage.getItem("coins")));
     }
 
-    // Function adds event listeners to all buttons on screen (EXCLUDING modal buttons)
-    function addEventListenersToButtons() {
+    // Function adds event listeners to all checkbox buttons on screen (EXCLUDING modal buttons)
+    function addEventListenersToCheckBoxButtons() {
         const buttons = document.getElementsByClassName("form-check-input");
         for (const button of buttons) {
 
@@ -88,6 +88,10 @@
 
     // Function displays array of coins sent to it in Bootstrap's card format
     function displayCoins(coinsArray) {
+
+        let selectedCoins = sessionStorage.getItem("selectedCoins");
+        if (selectedCoins) { selectedCoins = JSON.parse(selectedCoins) }
+        else { selectedCoins = [] };
 
         // h2 and modal HTML
         let html = `
@@ -133,61 +137,8 @@
             <div class="row row-cols-1 row-cols-md-3 g-4">`;
 
         for (let coin of coinsArray) {
-
-            let selectedCoins = sessionStorage.getItem("selectedCoins");
-            if (selectedCoins) { selectedCoins = JSON.parse(selectedCoins) }
-            else { selectedCoins = [] };
-
-            // check if coin is saved as a selected coin in storage - this impacts switch checked/unchecked
             // HTML Card featuring asked params
-            if (selectedCoins.indexOf(`${coin.symbol}`) > -1) {
-                html += `
-                    <div class="card mb-3 border border-0 bg-transparent" style="max-width: 540px;">
-                        <div class="row g-0">
-
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" checked role="switch" id="switch${coin.symbol}">
-                                <label class="form-check-label" for="switch${coin.symbol}">Add ${coin.symbol} to report</label>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label for="switch${coin.symbol}">
-                                    <img src="${coin.image}" class="img-fluid rounded-start" alt="image broken...">
-                                </label>
-                            </div>
-
-                            <div class="col-md-8">
-                                <div class="card-body">
-                                    <h5 class="card-title">${coin.name}</h5>
-                                    <p class="card-text">${coin.symbol}</p>
-                                    <p class="card-text"><small class="text-body-secondary" id="coinFetchDateAndTime${coin.id}">Last updated:<br>${getMostRelevantFetchDateAndTime(coin.id)}</small></p>
-                                        <button class="btn btn-primary priceButton" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="collapseExample" id="buttonTogglePrice${coin.id}">
-                                            <span class="spinner-border spinner-border-sm visually-hidden" role="status" aria-hidden="true" id="spinner${coin.id}"></span>
-                                            <span class="visually-hidden" id=spinnerLabel${coin.id}>Loading...</span>
-                                            <span class="" id=spinnerMainLabel${coin.id}>More Info</span>
-                                        </button>
-                                    </p>
-                                    <div class="collapse" id="collapse${coin.id}">
-                                        <div class="card card-body bg-transparent border-0">
-                                            <div id="coinPricePlaceHolderUSD${coin.id}">
-                                                $<br>
-                                            </div>
-                                            <div id="coinPricePlaceHolderEUR${coin.id}">
-                                                &#8352;<br>
-                                            </div>
-                                            <div id="coinPricePlaceHolderILS${coin.id}">
-                                                &#8362;<br>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                </div>`
-            }
-            // else: (coin is not selected)
-            else {
-                html += `
+            html += `
                     <div class="card mb-3 border border-0 bg-transparent" style="max-width: 540px;">
                         <div class="row g-0">
 
@@ -230,17 +181,34 @@
                             </div>
                         </div>
                     </div>`;
-            }
         }
+
         // if coinsArray is empty show a nice image
         if (coinsArray.length == 0) { html += `<img src="assets/noCoinsFound.jpg">` };
 
         html += `</div>`;
         mainContentContainer.innerHTML = html;
 
-        // need to add event listeners to all buttons on every load:
-        addEventListenersToButtons();
+        // add event listeners to all buttons on every load and add checked attribute to selected coins
+        addEventListenersToCheckBoxButtons();
         addEventListenersToPriceButtons();
+        // check if coin is saved as a selected coin in session storage and add "checked" attribute to checked coins
+        addCheckedAttributeToSelectedCoins(coinsArray);
+    }
+
+    // Function adds "checked" attribute to selected coins when coins are displayed
+    function addCheckedAttributeToSelectedCoins(coinsArray) {
+        let selectedCoins = sessionStorage.getItem("selectedCoins");
+        if (selectedCoins) { selectedCoins = JSON.parse(selectedCoins) }
+        else { selectedCoins = [] };
+        for (let coin of coinsArray) {
+            setTimeout(() => {
+                if ((selectedCoins.indexOf(`${coin.symbol}`) > -1)) {
+                    document.getElementById(`switch${coin.symbol}`).setAttribute("checked", "checked");
+                }
+            }, 0);
+
+        }
     }
 
     // Function filters new coinsArray according to `searchField` input and calls for a display
