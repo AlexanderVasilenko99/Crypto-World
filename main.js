@@ -27,8 +27,8 @@
     // This triggers modal if user tries to surpass the max amount of coins allowed by refreshing the page
     if (isThereDataOnLoad) {
         if (isThereDataOnLoad.length === selectedCoinsTopLimit) {
-            displayCoins(JSON.parse(sessionStorage.getItem("coins")));
-            checkSelectedCoinsAmount()
+            loadCoinsPage();
+            checkSelectedCoinsAmount();
         }
     };
 
@@ -44,6 +44,7 @@
             loadCoinsFromSessionStorage();
         }
     }
+
     // Function returns coins json from API
     async function getJson() {
         return (await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1")).json();
@@ -110,7 +111,7 @@
                             <h1 class="modal-title fs-5" id="staticBackdropLabel">Too many coins!</h1>
                         </div>
                         <div class="modal-body">
-                            Unfortunately at this time can only select 2 coins.<br>
+                            Unfortunately at this time can only select 5 coins.<br>
                             Please unselect a coin:<br><br>
     
                             <input class="form-check-input" type="checkbox" checked role="switch" data-bs-dismiss="modal" id="firstSelectedCoin">
@@ -404,28 +405,33 @@
         return Math.abs(coinFetchTime.getMinutes() - currentDateTime.getMinutes()) < 2 ? true : false;
     }
 
-    // Function returns most relevant fetch time from session storage(the time all coins were fetched or the time a specific coin was fetched from "More info button")
+    // Function returns most relevant fetch time from session storage
+    // (the time all coins were fetched or the time a specific coin was fetched from "More info button")
     function getMostRelevantFetchDateAndTime(coinName) {
         if (sessionStorage.getItem(`fetchTime${coinName}`)) { return JSON.parse(sessionStorage.getItem(`fetchTime${coinName}`)) };
         return JSON.parse(sessionStorage.getItem("dateAndTime"));
     }
 
 
-    // ------------------------------------------------------- FUNCTIONS RELATED TO LIVE REPORT -------------------------------------------------------
+    // ------------------------------------------------------- FUNCTIONS RELATED TO  REPORT -----------------------------------------------------------
 
     // Function loads report page
     function loadReportPage() {
         mainContentContainer.innerHTML = `
-        <h2>Reports Page</h2>
+        <h2>Reports Page</h2><h2 id="errorMsgHeading">Please select some coins before visiting this page!🥴</h2>
         <div id="chartContainer" style="height: 370px; width: 100%;"></div>`;
 
         let arrayOfSelectedCoins = sessionStorage.getItem("selectedCoins");
         if (arrayOfSelectedCoins) {
-
             arrayOfSelectedCoins = JSON.parse(arrayOfSelectedCoins);
-            const upper = arrayOfSelectedCoins.map(element => { return element.toUpperCase(); });
-
-            startCanvas(upper);
+            // if there are selected coins: remove error msg and start canvas  
+            if (arrayOfSelectedCoins.length != 0) {
+                const upper = arrayOfSelectedCoins.map(element => { return element.toUpperCase(); });
+                setTimeout(() => startCanvas(upper), 0);
+                setTimeout(() => document.getElementById("errorMsgHeading").remove(), 0);
+            }
+            // else remove canvas
+            else { setTimeout(() => document.getElementById("chartContainer").remove(), 0); }
         }
     }
 
