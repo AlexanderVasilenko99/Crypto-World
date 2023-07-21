@@ -135,12 +135,12 @@
                     </div>
                 </div>
             </div>
-            <div class="row row-cols-1 row-cols-md-3 g-4">`;
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">`;
 
         for (let coin of coinsArray) {
             // HTML Card featuring asked params
             html += `
-                    <div class="card mb-3 border border-0 bg-transparent" style="max-width: 540px;">
+                    <div class="col card mb-3 border border-0 bg-transparent" style="max-width: 540px;">
                         <div class="row g-0">
 
                             <div class="form-check form-switch">
