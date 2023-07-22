@@ -214,17 +214,21 @@
 
     // Function filters new coinsArray according to `searchField` input and calls for a display
     async function filterAndDisplayCoins(str) {
-
+        str = str.toLowerCase();
         // Fetch data from API if data hasn't been fetched yet 
         if (!sessionStorage.getItem("coins")) {
             await getSaveAndDisplayCoins();
         }
         let coinsArray = JSON.parse(sessionStorage.getItem("coins"));
+        let cloneOfCoinsArray = [...coinsArray];
 
-        let filteredArray = coinsArray.filter(coin => {
+        cloneOfCoinsArray = coinsArray.map(coin=>{
+            coin.name = coin.name.toLowerCase();
+        })
+        cloneOfCoinsArray = coinsArray.filter(coin => {
             return coin.name.indexOf(str) > -1 || coin.symbol.indexOf(str) > -1 // coin.id.indexOf(str) > -1 
         });
-        displayCoins(filteredArray);
+        displayCoins(cloneOfCoinsArray);
     }
 
     // Function updates selected coins to session storage
