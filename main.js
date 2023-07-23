@@ -448,6 +448,7 @@
         let coin3DataPoints = [];
         let coin4DataPoints = [];
         let coin5DataPoints = [];
+        let allCoinsDataPoints = [coin1DataPoints, coin2DataPoints, coin3DataPoints, coin4DataPoints, coin5DataPoints];
 
         const time = new Date;
         time.setMilliseconds(0);
@@ -514,63 +515,11 @@
 
             time.setTime(time.getTime() + chartUpdateInterval);
 
-            // get the current prices:
+            // get the current prices and push them to params:
             const yValue = (await getDataForReportsPage(arrayOfSelectedCoins));
-
-            if (arrayOfSelectedCoins.length === 1) {
-                const val1 = yValue[arrayOfSelectedCoins[0]].USD;
-                coin1DataPoints.push({ x: time.getTime(), y: val1 });
-                options.data[0].legendText = `${arrayOfSelectedCoins[0]}: ${val1} $`;
-            }
-            else if (arrayOfSelectedCoins.length === 2) {
-                const val1 = yValue[arrayOfSelectedCoins[0]].USD;
-                const val2 = yValue[arrayOfSelectedCoins[1]].USD;
-                coin1DataPoints.push({ x: time.getTime(), y: val1 });
-                coin2DataPoints.push({ x: time.getTime(), y: val2 });
-                options.data[0].legendText = `${arrayOfSelectedCoins[0]}: ${val1} $`;
-                options.data[1].legendText = `${arrayOfSelectedCoins[1]}: ${val2} $`;
-            }
-            else if (arrayOfSelectedCoins.length === 3) {
-                const val1 = yValue[arrayOfSelectedCoins[0]].USD;
-                const val2 = yValue[arrayOfSelectedCoins[1]].USD;
-                const val3 = yValue[arrayOfSelectedCoins[2]].USD;
-                coin1DataPoints.push({ x: time.getTime(), y: val1 });
-                coin2DataPoints.push({ x: time.getTime(), y: val2 });
-                coin3DataPoints.push({ x: time.getTime(), y: val3 });
-                options.data[0].legendText = `${arrayOfSelectedCoins[0]}: ${val1} $`;
-                options.data[1].legendText = `${arrayOfSelectedCoins[1]}: ${val2} $`;
-                options.data[2].legendText = `${arrayOfSelectedCoins[2]}: ${val3} $`;
-            }
-            else if (arrayOfSelectedCoins.length === 4) {
-                const val1 = yValue[arrayOfSelectedCoins[0]].USD;
-                const val2 = yValue[arrayOfSelectedCoins[1]].USD;
-                const val3 = yValue[arrayOfSelectedCoins[2]].USD;
-                const val4 = yValue[arrayOfSelectedCoins[3]].USD;
-                coin1DataPoints.push({ x: time.getTime(), y: val1 });
-                coin2DataPoints.push({ x: time.getTime(), y: val2 });
-                coin3DataPoints.push({ x: time.getTime(), y: val3 });
-                coin4DataPoints.push({ x: time.getTime(), y: val4 });
-                options.data[0].legendText = `${arrayOfSelectedCoins[0]}: ${val1} $`;
-                options.data[1].legendText = `${arrayOfSelectedCoins[1]}: ${val2} $`;
-                options.data[2].legendText = `${arrayOfSelectedCoins[2]}: ${val3} $`;
-                options.data[3].legendText = `${arrayOfSelectedCoins[3]}: ${val4} $`;
-            }
-            else {
-                const val1 = yValue[arrayOfSelectedCoins[0]].USD;
-                const val2 = yValue[arrayOfSelectedCoins[1]].USD;
-                const val3 = yValue[arrayOfSelectedCoins[2]].USD;
-                const val4 = yValue[arrayOfSelectedCoins[3]].USD;
-                const val5 = yValue[arrayOfSelectedCoins[4]].USD;
-                coin1DataPoints.push({ x: time.getTime(), y: val1 });
-                coin2DataPoints.push({ x: time.getTime(), y: val2 });
-                coin3DataPoints.push({ x: time.getTime(), y: val3 });
-                coin4DataPoints.push({ x: time.getTime(), y: val4 });
-                coin5DataPoints.push({ x: time.getTime(), y: val5 });
-                options.data[0].legendText = `${arrayOfSelectedCoins[0]}: ${val1} $`;
-                options.data[1].legendText = `${arrayOfSelectedCoins[1]}: ${val2} $`;
-                options.data[2].legendText = `${arrayOfSelectedCoins[2]}: ${val3} $`;
-                options.data[3].legendText = `${arrayOfSelectedCoins[3]}: ${val4} $`;
-                options.data[4].legendText = `${arrayOfSelectedCoins[4]}: ${val5} $`;
+            for (let i = 0; i < arrayOfSelectedCoins.length; i++) {
+                allCoinsDataPoints[i].push({ x: time.getTime(), y: yValue[arrayOfSelectedCoins[i]].USD });
+                options.data[i].legendText = `${arrayOfSelectedCoins[i]}: ${yValue[arrayOfSelectedCoins[i]].USD} $`;
             }
 
             let tab = document.getElementById("chartContainer");
@@ -579,7 +528,6 @@
             // else stop interval
             else { clearInterval(myInt); }
         }
-
         updateChart(1);
         const myInt = setInterval(() => { updateChart() }, chartUpdateInterval,);
     }
