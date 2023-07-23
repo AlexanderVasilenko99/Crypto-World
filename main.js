@@ -340,7 +340,7 @@
 
     // Function displays coin price in USD, EUR and ILS from session storage or API data
     async function displaySpecificCoinPrice(coinName) {
-
+        
         const selectedCoin = JSON.parse(sessionStorage.getItem(`${coinName}`));
         const usdValuePlaceholder = document.getElementById(`coinPricePlaceHolderUSD${coinName}`);
         const eurValuePlaceholder = document.getElementById(`coinPricePlaceHolderEUR${coinName}`);
@@ -353,8 +353,6 @@
 
         const buttonTogglePrice = document.getElementById(`buttonTogglePrice${coinName}`);
         buttonTogglePrice.setAttribute("href", `#collapse${coinName}`);
-
-
 
         // if selected coin has already been fetched and fetch time is relevant, display it 
         if (selectedCoin && isCoinFetchTimeRelevant(coinName)) {
@@ -378,17 +376,17 @@
             eurValuePlaceholder.innerHTML = `${coin.market_data.current_price.eur} &#8352;`;
             ilsValuePlaceholder.innerHTML = `${coin.market_data.current_price.ils} &#8362;`;
 
-            // toggle spinner off and open collapse
-            spinnerPlaceHolder.classList.toggle("visually-hidden");
-            spinnerLabelPlaceHolder.classList.toggle("visually-hidden");
-            spinnerMainLabel.classList.toggle("visually-hidden");
-            buttonTogglePrice.click();
-
             // save coin data and fetch time to session storage
             sessionStorage.setItem(`${coinName}`, JSON.stringify(coin));
             const date = (new Date).toLocaleString();
             sessionStorage.setItem(`fetchTime${coinName}`, JSON.stringify(date));
             coinFetchDateAndTime.innerHTML = `Last updated:<br>${date}`;
+
+            // toggle spinner off and open collapse
+            spinnerPlaceHolder.classList.toggle("visually-hidden");
+            spinnerLabelPlaceHolder.classList.toggle("visually-hidden");
+            spinnerMainLabel.classList.toggle("visually-hidden");
+            buttonTogglePrice.click();   
         }
     }
 
