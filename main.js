@@ -3,6 +3,7 @@
     // This is the max amount of coins that can be selected for reports page
     const selectedCoinsTopLimit = 6;
     // Navbar elements
+    const logoLink = document.getElementById("logoLink");
     const mainPageLink = document.getElementById("mainPageLink");
     const coinsPageLink = document.getElementById("coinsPageLink");
     const reportsPageLink = document.getElementById("reportsPageLink");
@@ -15,6 +16,7 @@
 
     // Navbar links & navbar search field event listeners
     mainPageLink.addEventListener("click", () => loadMainPage());
+    logoLink.addEventListener("click", () => loadMainPage());
     coinsPageLink.addEventListener("click", () => loadCoinsPage());
     reportsPageLink.addEventListener("click", () => loadReportPage());
     aboutUsPageLink.addEventListener("click", () => loadAboutUsPage());

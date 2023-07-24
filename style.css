@@ -6,3 +6,6 @@
     background-size: cover;
     min-height: 500px;
 }
+#logoLink:hover{
+    cursor: pointer;
+}
