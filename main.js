@@ -38,9 +38,9 @@
     // ------------------------------------------------------- FUNCTIONS RELATED TO COINS PAGE -------------------------------------------------------
 
     // Function loads coins from API or session storage and displays it in Bootstrap's card format
-    async function loadCoinsPage() {
+    function loadCoinsPage() {
         if (!sessionStorage.getItem("coins")) {
-            await getSaveAndDisplayCoins();
+            getSaveAndDisplayCoins();
         }
         else {
             loadCoinsFromSessionStorage();
@@ -49,7 +49,10 @@
 
     // Function returns coins json from API
     async function getJson() {
-        return (await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1")).json();
+        try {
+            const data = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1");
+            return data.json();
+        } catch (err) { console.log(err) }
     }
 
     // Function gets coinsArray from API, calls for a save to session storage and calls for a display 
@@ -91,13 +94,13 @@
 
     // Function displays array of coins sent to it in Bootstrap's card format
     function displayCoins(coinsArray) {
+        try {
+            let selectedCoins = sessionStorage.getItem("selectedCoins");
+            if (selectedCoins) { selectedCoins = JSON.parse(selectedCoins) }
+            else { selectedCoins = [] };
 
-        let selectedCoins = sessionStorage.getItem("selectedCoins");
-        if (selectedCoins) { selectedCoins = JSON.parse(selectedCoins) }
-        else { selectedCoins = [] };
-
-        // h2 and modal HTML
-        let html = `
+            // h2 and modal HTML
+            let html = `
             <h2>The coins:</h2>
 
             <!-- Button trigger modal -->
@@ -139,9 +142,9 @@
             </div>
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">`;
 
-        for (let coin of coinsArray) {
-            // HTML Card featuring asked params
-            html += `
+            for (let coin of coinsArray) {
+                // HTML Card featuring asked params
+                html += `
                     <div class="col card mb-3 border border-0 bg-transparent" style="max-width: 540px;">
                         <div class="row g-0">
 
@@ -164,6 +167,7 @@
                                         <button class="btn btn-primary priceButton" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="collapseExample" id="buttonTogglePrice${coin.id}">
                                             <span class="spinner-border spinner-border-sm visually-hidden" role="status" aria-hidden="true" id="spinner${coin.id}"></span>
                                             <span class="visually-hidden" id=spinnerLabel${coin.id}>Loading...</span>
+                                            <span class="visually-hidden" id=spinnerErrorLabel${coin.id}>error</span>
                                             <span class="" id=spinnerMainLabel${coin.id}>More Info</span>
                                         </button>
                                     </p>
@@ -184,19 +188,20 @@
                             </div>
                         </div>
                     </div>`;
-        }
+            }
 
-        // if coinsArray is empty show a nice image
-        if (coinsArray.length == 0) { html += `<img src="assets/noCoinsFound.jpg">` };
+            // if coinsArray is empty show a nice image
+            if (coinsArray.length == 0) { html += `<img src="assets/noCoinsFound.jpg">` };
 
-        html += `</div>`;
-        mainContentContainer.innerHTML = html;
+            html += `</div>`;
+            mainContentContainer.innerHTML = html;
 
-        // add event listeners to all buttons on every load and add checked attribute to selected coins
-        addEventListenersToCheckBoxButtons();
-        addEventListenersToPriceButtons();
-        // check if coin is saved as a selected coin in session storage and add "checked" attribute to checked coins
-        addCheckedAttributeToSelectedCoins(coinsArray);
+            // add event listeners to all buttons on every load and add checked attribute to selected coins
+            addEventListenersToCheckBoxButtons();
+            addEventListenersToPriceButtons();
+            // check if coin is saved as a selected coin in session storage and add "checked" attribute to checked coins
+            addCheckedAttributeToSelectedCoins(coinsArray);
+        } catch (err) { console.log(err); }
     }
 
     // Function adds "checked" attribute to selected coins when coins are displayed
@@ -216,21 +221,23 @@
 
     // Function filters new coinsArray according to `searchField` input and calls for a display
     async function filterAndDisplayCoins(str) {
-        str = str.toLowerCase();
-        // Fetch data from API if data hasn't been fetched yet 
-        if (!sessionStorage.getItem("coins")) {
-            await getSaveAndDisplayCoins();
-        }
-        let coinsArray = JSON.parse(sessionStorage.getItem("coins"));
-        let cloneOfCoinsArray = [...coinsArray];
+        try {
+            str = str.toLowerCase();
+            // Fetch data from API if data hasn't been fetched yet 
+            if (!sessionStorage.getItem("coins")) {
+                await getSaveAndDisplayCoins();
+            }
+            let coinsArray = JSON.parse(sessionStorage.getItem("coins"));
+            let cloneOfCoinsArray = [...coinsArray];
 
-        cloneOfCoinsArray = coinsArray.map(coin => {
-            coin.name = coin.name.toLowerCase();
-        })
-        cloneOfCoinsArray = coinsArray.filter(coin => {
-            return coin.name.indexOf(str) > -1 || coin.symbol.indexOf(str) > -1 // coin.id.indexOf(str) > -1 
-        });
-        displayCoins(cloneOfCoinsArray);
+            cloneOfCoinsArray = coinsArray.map(coin => {
+                coin.name = coin.name.toLowerCase();
+            })
+            cloneOfCoinsArray = coinsArray.filter(coin => {
+                return coin.name.indexOf(str) > -1 || coin.symbol.indexOf(str) > -1 // coin.id.indexOf(str) > -1 
+            });
+            displayCoins(cloneOfCoinsArray);
+        } catch (err) { console.log(err) }
     }
 
     // Function updates selected coins to session storage
@@ -337,12 +344,16 @@
 
     // Function returns json of a specific coin
     async function getSpecificCoinJson(coinName) {
-        return (await fetch(`https://api.coingecko.com/api/v3/coins/${coinName}`)).json();
+        try {
+            const data = await fetch(`https://api.coingecko.com/api/v3/coins/${coinName}`);
+            return data.json();
+        }
+        catch (err) { console.log(err) }
     }
 
     // Function displays coin price in USD, EUR and ILS from session storage or API data
     async function displaySpecificCoinPrice(coinName) {
-        
+
         const selectedCoin = JSON.parse(sessionStorage.getItem(`${coinName}`));
         const usdValuePlaceholder = document.getElementById(`coinPricePlaceHolderUSD${coinName}`);
         const eurValuePlaceholder = document.getElementById(`coinPricePlaceHolderEUR${coinName}`);
@@ -350,45 +361,61 @@
 
         const spinnerPlaceHolder = document.getElementById(`spinner${coinName}`);
         const spinnerLabelPlaceHolder = document.getElementById(`spinnerLabel${coinName}`);
+        const spinnerErrorLabelPlaceHolder = document.getElementById(`spinnerErrorLabel${coinName}`);
         const spinnerMainLabel = document.getElementById(`spinnerMainLabel${coinName}`);
         const coinFetchDateAndTime = document.getElementById(`coinFetchDateAndTime${coinName}`);
 
         const buttonTogglePrice = document.getElementById(`buttonTogglePrice${coinName}`);
         buttonTogglePrice.setAttribute("href", `#collapse${coinName}`);
 
-        // if selected coin has already been fetched and fetch time is relevant, display it 
-        if (selectedCoin && isCoinFetchTimeRelevant(coinName)) {
-            usdValuePlaceholder.innerHTML = `${selectedCoin.market_data.current_price.usd} $`;
-            eurValuePlaceholder.innerHTML = `${selectedCoin.market_data.current_price.eur} &#8352;`;
-            ilsValuePlaceholder.innerHTML = `${selectedCoin.market_data.current_price.ils} &#8362;`;
-            // toggle collapse
-            buttonTogglePrice.click();
-        }
-        // else trigger spinner --> fetch data --> save fetch time and coin data to session storage --> display data
-        else {
+        try {
+            // if selected coin has already been fetched and fetch time is relevant, display it 
+            if (selectedCoin && isCoinFetchTimeRelevant(coinName)) {
+                usdValuePlaceholder.innerHTML = `${selectedCoin.market_data.current_price.usd} $`;
+                eurValuePlaceholder.innerHTML = `${selectedCoin.market_data.current_price.eur} &#8352;`;
+                ilsValuePlaceholder.innerHTML = `${selectedCoin.market_data.current_price.ils} &#8362;`;
+                // toggle collapse
+                buttonTogglePrice.click();
+            }
+            // else trigger spinner --> fetch data --> save fetch time and coin data to session storage --> display data
+            else {
 
-            // toggle spinner on
-            spinnerPlaceHolder.classList.toggle("visually-hidden");
-            spinnerLabelPlaceHolder.classList.toggle("visually-hidden");
-            spinnerMainLabel.classList.toggle("visually-hidden");
+                // toggle spinner on
+                spinnerPlaceHolder.classList.toggle("visually-hidden");
+                spinnerLabelPlaceHolder.classList.toggle("visually-hidden");
+                spinnerMainLabel.classList.toggle("visually-hidden");
 
-            // await data and display when ready
-            const coin = await getSpecificCoinJson(coinName);
-            usdValuePlaceholder.innerHTML = `${coin.market_data.current_price.usd} $`;
-            eurValuePlaceholder.innerHTML = `${coin.market_data.current_price.eur} &#8352;`;
-            ilsValuePlaceholder.innerHTML = `${coin.market_data.current_price.ils} &#8362;`;
+                // await data and display when ready
+                const coin = await getSpecificCoinJson(coinName);
+                usdValuePlaceholder.innerHTML = `${coin.market_data.current_price.usd} $`;
+                eurValuePlaceholder.innerHTML = `${coin.market_data.current_price.eur} &#8352;`;
+                ilsValuePlaceholder.innerHTML = `${coin.market_data.current_price.ils} &#8362;`;
 
-            // save coin data and fetch time to session storage
-            sessionStorage.setItem(`${coinName}`, JSON.stringify(coin));
-            const date = (new Date).toLocaleString();
-            sessionStorage.setItem(`fetchTime${coinName}`, JSON.stringify(date));
-            coinFetchDateAndTime.innerHTML = `Last updated:<br>${date}`;
+                // save coin data and fetch time to session storage
+                sessionStorage.setItem(`${coinName}`, JSON.stringify(coin));
+                const date = (new Date).toLocaleString();
+                sessionStorage.setItem(`fetchTime${coinName}`, JSON.stringify(date));
+                coinFetchDateAndTime.innerHTML = `Last updated:<br>${date}`;
 
-            // toggle spinner off and open collapse
-            spinnerPlaceHolder.classList.toggle("visually-hidden");
-            spinnerLabelPlaceHolder.classList.toggle("visually-hidden");
-            spinnerMainLabel.classList.toggle("visually-hidden");
-            buttonTogglePrice.click();   
+                // toggle spinner off and open collapse
+                spinnerPlaceHolder.classList.toggle("visually-hidden");
+                spinnerLabelPlaceHolder.classList.toggle("visually-hidden");
+                spinnerMainLabel.classList.toggle("visually-hidden");
+                buttonTogglePrice.click();
+            }
+        } catch (err) {
+            // if couldn't fetch data, make it look like it tried for 2 seconds and display error in console and on button
+            console.log(err);
+            buttonTogglePrice.removeAttribute("href");
+            setTimeout(() => {
+                spinnerPlaceHolder.classList.toggle("visually-hidden");
+                spinnerLabelPlaceHolder.classList.toggle("visually-hidden");
+                spinnerErrorLabelPlaceHolder.classList.toggle("visually-hidden");
+            }, 2000);
+            setTimeout(() => {
+                spinnerMainLabel.classList.toggle("visually-hidden");
+                spinnerErrorLabelPlaceHolder.classList.toggle("visually-hidden");
+            }, 3000);
         }
     }
 
@@ -422,7 +449,9 @@
     // Function loads report page
     function loadReportPage() {
         mainContentContainer.innerHTML = `
-        <h2>Reports Page</h2><h2 id="errorMsgHeading">Please select some coins before visiting this page!🥴</h2>
+        <h2>Reports Page</h2>
+        <h2 id="errorMsgHeading">Please select some coins before visiting this page!🥴</h2>
+        <h2 id="errorMsgHeading2">An error has occurred, please try again later</h2>
         <div id="chartContainer" style="height: 370px; width: 100%;"></div>`;
 
         let arrayOfSelectedCoins = sessionStorage.getItem("selectedCoins");
@@ -432,129 +461,145 @@
             if (arrayOfSelectedCoins.length != 0) {
                 const upper = arrayOfSelectedCoins.map(element => { return element.toUpperCase(); });
                 setTimeout(() => startCanvas(upper), 0);
-                setTimeout(() => document.getElementById("errorMsgHeading").remove(), 0);
+                setTimeout(() => document.getElementById("errorMsgHeading").classList.toggle("visually-hidden"));
+                setTimeout(() => document.getElementById("errorMsgHeading2").classList.toggle("visually-hidden"));
             }
             // else remove canvas
-            else { setTimeout(() => document.getElementById("chartContainer").remove(), 0); }
+            else {
+                setTimeout(() => document.getElementById("chartContainer").classList.toggle("visually-hidden"));
+                setTimeout(() => document.getElementById("errorMsgHeading2").classList.toggle("visually-hidden"));
+            }
+        }
+        else {
+            setTimeout(() => document.getElementById("errorMsgHeading2").classList.toggle("visually-hidden"));
         }
     }
 
     // Function prints prices from ArrayOfSelected coins to canvas every two second if user is still on reports page   
     function startCanvas(arrayOfSelectedCoins) {
+        try {
+            const chartUpdateInterval = 2000; // how often the chart updates in milliseconds
+            let coin1DataPoints = [];
+            let coin2DataPoints = [];
+            let coin3DataPoints = [];
+            let coin4DataPoints = [];
+            let coin5DataPoints = [];
+            let allCoinsDataPoints = [coin1DataPoints, coin2DataPoints, coin3DataPoints, coin4DataPoints, coin5DataPoints];
 
-        const chartUpdateInterval = 2000; // how often the chart updates in milliseconds
-        let coin1DataPoints = [];
-        let coin2DataPoints = [];
-        let coin3DataPoints = [];
-        let coin4DataPoints = [];
-        let coin5DataPoints = [];
-        let allCoinsDataPoints = [coin1DataPoints, coin2DataPoints, coin3DataPoints, coin4DataPoints, coin5DataPoints];
+            const time = new Date;
+            time.setMilliseconds(0);
 
-        const time = new Date;
-        time.setMilliseconds(0);
+            const options = { // canvas settings
+                axisX: {
+                    title: "chart updates every 2 secs"
+                },
+                axisY: {
+                    suffix: "$"
+                },
+                legend: {
+                    cursor: "pointer",
+                    verticalAlign: "top",
+                    fontSize: 22,
+                    fontColor: "dimGrey",
+                },
+                data: [{
+                    type: "line",
+                    xValueType: "dateTime",
+                    yValueFormatString: "###. $",
+                    xValueFormatString: "hh:mm:ss TT",
+                    showInLegend: true,//(top of chart)
+                    name: "Coin 1",
+                    dataPoints: coin1DataPoints
+                }, {
+                    type: "line",
+                    xValueType: "dateTime",
+                    yValueFormatString: "###. $",
+                    xValueFormatString: "hh:mm:ss TT",
+                    showInLegend: true,//(top of chart)
+                    name: "Coin 2",
+                    dataPoints: coin2DataPoints
+                }, {
+                    type: "line",
+                    xValueType: "dateTime",
+                    yValueFormatString: "###. $",
+                    xValueFormatString: "hh:mm:ss TT",
+                    showInLegend: true,//(top of chart)
+                    name: "Coin 3",
+                    dataPoints: coin3DataPoints
+                }, {
+                    type: "line",
+                    xValueType: "dateTime",
+                    yValueFormatString: "###. $",
+                    xValueFormatString: "hh:mm:ss TT",
+                    showInLegend: true,//(top of chart)
+                    name: "Coin 4",
+                    dataPoints: coin4DataPoints
+                }, {
+                    type: "line",
+                    xValueType: "dateTime",
+                    yValueFormatString: "###. $",
+                    xValueFormatString: "hh:mm:ss TT",
+                    showInLegend: true,//(top of chart)
+                    name: "Coin 5",
+                    dataPoints: coin5DataPoints
+                },
+                ]
+            };
 
-        const options = { // canvas settings
-            axisX: {
-                title: "chart updates every 2 secs"
-            },
-            axisY: {
-                suffix: "$"
-            },
-            legend: {
-                cursor: "pointer",
-                verticalAlign: "top",
-                fontSize: 22,
-                fontColor: "dimGrey",
-            },
-            data: [{
-                type: "line",
-                xValueType: "dateTime",
-                yValueFormatString: "###. $",
-                xValueFormatString: "hh:mm:ss TT",
-                showInLegend: true,//(top of chart)
-                name: "Coin 1",
-                dataPoints: coin1DataPoints
-            }, {
-                type: "line",
-                xValueType: "dateTime",
-                yValueFormatString: "###. $",
-                xValueFormatString: "hh:mm:ss TT",
-                showInLegend: true,//(top of chart)
-                name: "Coin 2",
-                dataPoints: coin2DataPoints
-            }, {
-                type: "line",
-                xValueType: "dateTime",
-                yValueFormatString: "###. $",
-                xValueFormatString: "hh:mm:ss TT",
-                showInLegend: true,//(top of chart)
-                name: "Coin 3",
-                dataPoints: coin3DataPoints
-            }, {
-                type: "line",
-                xValueType: "dateTime",
-                yValueFormatString: "###. $",
-                xValueFormatString: "hh:mm:ss TT",
-                showInLegend: true,//(top of chart)
-                name: "Coin 4",
-                dataPoints: coin4DataPoints
-            }, {
-                type: "line",
-                xValueType: "dateTime",
-                yValueFormatString: "###. $",
-                xValueFormatString: "hh:mm:ss TT",
-                showInLegend: true,//(top of chart)
-                name: "Coin 5",
-                dataPoints: coin5DataPoints
-            },
-            ]
-        };
+            $("#chartContainer").CanvasJSChart(options);
+            async function updateChart() {
 
-        $("#chartContainer").CanvasJSChart(options);
-        async function updateChart() {
+                time.setTime(time.getTime() + chartUpdateInterval);
 
-            time.setTime(time.getTime() + chartUpdateInterval);
-
-            // get the current prices and push them to params:
-            const yValue = (await getDataForReportsPage(arrayOfSelectedCoins));
-            for (let i = 0; i < arrayOfSelectedCoins.length; i++) {
-                allCoinsDataPoints[i].push({ x: time.getTime(), y: yValue[arrayOfSelectedCoins[i]].USD });
-                options.data[i].legendText = `${arrayOfSelectedCoins[i]}: ${yValue[arrayOfSelectedCoins[i]].USD} $`;
+                // get the current prices and push them to params:
+                let yValue = (await getDataForReportsPage(arrayOfSelectedCoins));
+                try {
+                    for (let i = 0; i < arrayOfSelectedCoins.length; i++) {
+                        allCoinsDataPoints[i].push({ x: time.getTime(), y: yValue[arrayOfSelectedCoins[i]].USD });
+                        options.data[i].legendText = `${arrayOfSelectedCoins[i]}: ${yValue[arrayOfSelectedCoins[i]].USD} $`;
+                    }
+                } catch (err) {
+                    console.log(err);
+                    clearInterval(myInt);
+                    document.getElementById("chartContainer").classList.toggle("visually-hidden");
+                    document.getElementById("errorMsgHeading2").classList.toggle("visually-hidden");
+                }
+                let tab = document.getElementById("chartContainer");
+                // if element exists(user still on reports page) continue printing and updating data
+                if (tab) { $("#chartContainer").CanvasJSChart().render(); }
+                // else stop interval
+                else { clearInterval(myInt); }
             }
-
-            let tab = document.getElementById("chartContainer");
-            // if element exists(user still on reports page) continue printing and updating data
-            if (tab) { $("#chartContainer").CanvasJSChart().render(); }
-            // else stop interval
-            else { clearInterval(myInt); }
-        }
-        updateChart(1);
-        const myInt = setInterval(() => { updateChart() }, chartUpdateInterval,);
+            updateChart(1);
+            const myInt = setInterval(() => { updateChart() }, chartUpdateInterval,);
+        } catch (err) { console.log(err); }
     }
 
     // Function returns data from API according to given array of coins  
     async function getDataForReportsPage(arrayOfSelectedCoins) {
         let response;
-        if (arrayOfSelectedCoins.length === 1) {
-            response = await fetch(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${arrayOfSelectedCoins[0]}&tsyms=USD`);
-        }
-        else if (arrayOfSelectedCoins.length === 2) {
-            response = await fetch(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${arrayOfSelectedCoins[0]},${arrayOfSelectedCoins[1]}&tsyms=USD`);
-        }
-        else if (arrayOfSelectedCoins.length === 3) {
-            response = await fetch(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${arrayOfSelectedCoins[0]},${arrayOfSelectedCoins[1]},${arrayOfSelectedCoins[2]}&tsyms=USD`);
-        }
-        else if (arrayOfSelectedCoins.length === 4) {
-            response = await fetch(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${arrayOfSelectedCoins[0]},${arrayOfSelectedCoins[1]},${arrayOfSelectedCoins[2]},${arrayOfSelectedCoins[3]}&tsyms=USD`);
-        }
-        else if (arrayOfSelectedCoins.length === 5) {
-            response = await fetch(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${arrayOfSelectedCoins[0]},${arrayOfSelectedCoins[1]},${arrayOfSelectedCoins[2]},${arrayOfSelectedCoins[3]},${arrayOfSelectedCoins[4]}&tsyms=USD`);
-        }
-        else {//no coins were selected
-            alert("select a coin fat ass")
-        }
-        const info = await response.json();
-        return info;
+        try {
+            if (arrayOfSelectedCoins.length === 1) {
+                response = await fetch(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${arrayOfSelectedCoins[0]}&tsyms=USD`);
+            }
+            else if (arrayOfSelectedCoins.length === 2) {
+                response = await fetch(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${arrayOfSelectedCoins[0]},${arrayOfSelectedCoins[1]}&tsyms=USD`);
+            }
+            else if (arrayOfSelectedCoins.length === 3) {
+                response = await fetch(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${arrayOfSelectedCoins[0]},${arrayOfSelectedCoins[1]},${arrayOfSelectedCoins[2]}&tsyms=USD`);
+            }
+            else if (arrayOfSelectedCoins.length === 4) {
+                response = await fetch(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${arrayOfSelectedCoins[0]},${arrayOfSelectedCoins[1]},${arrayOfSelectedCoins[2]},${arrayOfSelectedCoins[3]}&tsyms=USD`);
+            }
+            else if (arrayOfSelectedCoins.length === 5) {
+                response = await fetch(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${arrayOfSelectedCoins[0]},${arrayOfSelectedCoins[1]},${arrayOfSelectedCoins[2]},${arrayOfSelectedCoins[3]},${arrayOfSelectedCoins[4]}&tsyms=USD`);
+            }
+            else {//no coins were selected
+                alert("select a coin fat ass")
+            }
+            // let info = await response;
+            return response.json();
+        } catch (err) { console.log(err); }
     }
 
     // -------------------------------------------------------- FUNCTIONS RELATED TO ABOUT US ---------------------------------------------------------
