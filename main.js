@@ -142,7 +142,7 @@
             </div>
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">`;
 
-            for (let coin of coinsArray) {
+            for (const coin of coinsArray) {
                 // HTML Card featuring asked params
                 html += `
                     <div class="col card mb-3 border border-0 bg-transparent" style="max-width: 540px;">
@@ -196,7 +196,7 @@
             html += `</div>`;
             mainContentContainer.innerHTML = html;
 
-            // add event listeners to all buttons on every load and add checked attribute to selected coins
+            // add event listeners to all buttons on every load
             addEventListenersToCheckBoxButtons();
             addEventListenersToPriceButtons();
             // check if coin is saved as a selected coin in session storage and add "checked" attribute to checked coins
@@ -234,7 +234,7 @@
                 coin.name = coin.name.toLowerCase();
             })
             cloneOfCoinsArray = coinsArray.filter(coin => {
-                return coin.name.indexOf(str) > -1 || coin.symbol.indexOf(str) > -1 // coin.id.indexOf(str) > -1 
+                return coin.name.indexOf(str) > -1 || coin.symbol.indexOf(str) > -1
             });
             displayCoins(cloneOfCoinsArray);
         } catch (err) { console.log(err) }
@@ -264,7 +264,6 @@
 
         // update storage
         sessionStorage.setItem("selectedCoins", JSON.stringify(coinsSavedInStorage));
-        // adjust `Reports` in navbar
     }
 
     // Function checks if amount of selected coins is surpassed and displays modal accordingly
@@ -314,9 +313,6 @@
                 displayCoins(JSON.parse(sessionStorage.getItem("coins")));
             });
 
-            //THIS IS SAVE BUTTONS EVENT LISTENER IN CASE NEEDED LATER
-            // document.getElementById("modalSaveButton").addEventListener("click", () => { displayCoins(JSON.parse(sessionStorage.getItem("coins"))) });
-
             // trigger modal
             document.getElementById("buttonSwitchModal").click();
         }
@@ -336,7 +332,6 @@
 
             for (const coin of selectedCoins) {
                 html += `<img src="${coins[coins.indexOf(coins.find(element => element.symbol == coin))].image}" style="width: 20px;padding-left: 5px;">`;
-
             }
         }
         element.innerHTML = html;
@@ -425,7 +420,6 @@
         for (const button of buttons) {
             button.addEventListener("click", () => displaySpecificCoinPrice(button.id.substring(17)));
         }
-
     }
 
     // Function returns true if coin data was fetched less than 2 minutes ago; else returns false 
@@ -507,7 +501,7 @@
                     xValueType: "dateTime",
                     yValueFormatString: "###. $",
                     xValueFormatString: "hh:mm:ss TT",
-                    showInLegend: true,//(top of chart)
+                    showInLegend: true,
                     name: "Coin 1",
                     dataPoints: coin1DataPoints
                 }, {
@@ -515,7 +509,7 @@
                     xValueType: "dateTime",
                     yValueFormatString: "###. $",
                     xValueFormatString: "hh:mm:ss TT",
-                    showInLegend: true,//(top of chart)
+                    showInLegend: true,
                     name: "Coin 2",
                     dataPoints: coin2DataPoints
                 }, {
@@ -523,7 +517,7 @@
                     xValueType: "dateTime",
                     yValueFormatString: "###. $",
                     xValueFormatString: "hh:mm:ss TT",
-                    showInLegend: true,//(top of chart)
+                    showInLegend: true,
                     name: "Coin 3",
                     dataPoints: coin3DataPoints
                 }, {
@@ -531,7 +525,7 @@
                     xValueType: "dateTime",
                     yValueFormatString: "###. $",
                     xValueFormatString: "hh:mm:ss TT",
-                    showInLegend: true,//(top of chart)
+                    showInLegend: true,
                     name: "Coin 4",
                     dataPoints: coin4DataPoints
                 }, {
@@ -539,7 +533,7 @@
                     xValueType: "dateTime",
                     yValueFormatString: "###. $",
                     xValueFormatString: "hh:mm:ss TT",
-                    showInLegend: true,//(top of chart)
+                    showInLegend: true,
                     name: "Coin 5",
                     dataPoints: coin5DataPoints
                 },
@@ -593,9 +587,6 @@
             }
             else if (arrayOfSelectedCoins.length === 5) {
                 response = await fetch(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${arrayOfSelectedCoins[0]},${arrayOfSelectedCoins[1]},${arrayOfSelectedCoins[2]},${arrayOfSelectedCoins[3]},${arrayOfSelectedCoins[4]}&tsyms=USD`);
-            }
-            else {//no coins were selected
-                alert("select a coin fat ass")
             }
             // let info = await response;
             return response.json();
