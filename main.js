@@ -40,6 +40,11 @@
     // Function loads coins from API or session storage and displays it in Bootstrap's card format
     function loadCoinsPage() {
         if (!sessionStorage.getItem("coins")) {
+            // display spinner
+            mainContentContainer.innerHTML = `
+                <div class="d-flex justify-content-center mt-5">
+                    <div class="spinner-border text-secondary" style="width: 3rem; height: 3rem;" role="status"></div>
+                </div>`;
             getSaveAndDisplayCoins();
         }
         else {
